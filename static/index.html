@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-black min-h-screen text-white font-sans antialiased selection:bg-pink-500 selection:text-white">
+    <div class="container mx-auto px-4 py-16 max-w-3xl">
+        <header class="text-center mb-12">
+            <h1 class="text-5xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
+                NanoLink
+            </h1>
+            <p class="text-gray-300 text-lg">Shorten your URLs quickly and securely.</p>
+        </header>
+
+        <div class="glass rounded-2xl p-8 shadow-2xl mb-12 transform transition-all hover:scale-[1.01] duration-300">
+            <form id="shortenForm" class="space-y-6">
+                <div>
+                    <label for="url" class="block text-sm font-medium text-gray-300 mb-2">Original URL</label>
+                    <input type="url" id="url" required placeholder="https://example.com/very/long/path" 
+                        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-white placeholder-gray-500">
+                </div>
+                
+                <div>
+                    <label for="expires" class="block text-sm font-medium text-gray-300 mb-2">Expires in (Days) <span class="text-gray-500 text-xs">- Optional</span></label>
+                    <input type="number" id="expires" min="1" placeholder="e.g. 7" 
+                        class="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-white placeholder-gray-500">
+                </div>
+                
+                <button type="submit" 
+                    class="w-full py-3 px-6 bg-gradient-to-r from-pink-600 to-violet-600 hover:from-pink-500 hover:to-violet-500 text-white font-semibold rounded-lg shadow-lg transform transition-all hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-pink-500">
+                    Shorten URL
+                </button>
+            </form>
+            
+            <div id="result" class="hidden mt-8 p-6 bg-white/5 border border-green-500/30 rounded-lg animate-fade-in">
+                <p class="text-sm text-green-400 mb-2 font-medium">✨ Success! Your short URL is ready:</p>
+                <div class="flex items-center gap-3">
+                    <input type="text" id="shortUrl" readonly class="flex-1 bg-transparent border-b border-green-500/50 text-white text-lg py-1 outline-none font-mono">
+                    <button id="copyBtn" class="p-2 text-gray-300 hover:text-white bg-white/10 rounded hover:bg-white/20 transition-colors" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-700/50 flex justify-between items-center text-sm">
+                    <span class="text-gray-400">View stats at:</span>
+                    <a id="statsLink" href="#" class="text-pink-400 hover:text-pink-300 underline underline-offset-2 font-mono" target="_blank"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass rounded-2xl p-8 shadow-2xl relative overflow-hidden group">
+            <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                Check URL Statistics
+            </h2>
+            <form id="statsForm" class="flex gap-4">
+                <input type="text" id="statsCode" required placeholder="Enter short code (e.g. ab3Xy9)" 
+                    class="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-white placeholder-gray-500">
+                <button type="submit" 
+                    class="py-3 px-6 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg shadow-lg transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 whitespace-nowrap">
+                    View Stats
+                </button>
+            </form>
+            
+            <div id="statsResult" class="hidden mt-8 text-center animate-fade-in">
+                <!-- Stats will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        document.getElementById('shortenForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalUrl = document.getElementById('url').value;
+            const expires = document.getElementById('expires').value;
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = 'Creating...';
+            submitBtn.disabled = true;
+
+            try {
+                const payload = { original_url: originalUrl };
+                if (expires) payload.expires_in_days = parseInt(expires);
+
+                const res = await fetch(`${API_URL}/api/shorten`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!res.ok) throw new Error(await res.text());
+                
+                const data = await res.json();
+                const shortUrl = `${API_URL}/${data.short_code}`;
+                
+                document.getElementById('shortUrl').value = shortUrl;
+                document.getElementById('statsLink').href = `${API_URL}/stats.html?code=${data.short_code}`;
+                document.getElementById('statsLink').innerText = `${API_URL}/stats.html?code=${data.short_code}`;
+                document.getElementById('result').classList.remove('hidden');
+                
+            } catch (err) {
+                alert('Error: ' + err.message);
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', () => {
+            const copyContent = document.getElementById('shortUrl');
+            copyContent.select();
+            document.execCommand("copy");
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+            setTimeout(() => {
+                btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+            }, 2000);
+        });
+
+        document.getElementById('statsForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const code = document.getElementById('statsCode').value;
+            window.location.href = `/stats.html?code=${code}`;
+        });
+    </script>
+</body>
+</html>
