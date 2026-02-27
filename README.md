@@ -20,7 +20,7 @@ flowchart TD
     User([User / Browser])
     
     subgraph sublayer [Frontend]
-        UI["UI Dashboard (index.html, stats.html)"]
+        UI["UI Dashboard<br/>(index.html, stats.html)"]
     end
     
     subgraph sublayer2 [Backend API]
@@ -31,8 +31,8 @@ flowchart TD
 
     subgraph sublayer3 [Data Layer]
         DB[(Database)]
-        TableURL[urls Table]
-        TableClick[click_analytics Table]
+        TableURL[urls<br/>Table]
+        TableClick[click_analytics<br/>Table]
     end
 
     User -->|Generates URL| UI
