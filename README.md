@@ -19,17 +19,17 @@ A modern, comprehensive URL Shortener application built with FastAPI and SQLite.
 graph TD
     User([User / Browser])
     
-    sublayer[Frontend]
+    subgraph sublayer [Frontend]
         UI["UI Dashboard (index.html, stats.html)"]
     end
     
-    sublayer2[Backend API (FastAPI)]
+    subgraph sublayer2 [Backend API]
         APIShorten[POST /api/shorten]
         APIRedirect[GET /{short_code}]
         APIStats[GET /api/stats/{short_code}]
     end
 
-    sublayer3[Data Layer (SQLite + SQLAlchemy)]
+    subgraph sublayer3 [Data Layer]
         DB[(Database)]
         TableURL[urls Table]
         TableClick[click_analytics Table]
