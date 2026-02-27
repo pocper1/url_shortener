@@ -83,8 +83,8 @@ To prevent malicious scripts or botnets from flooding the database with billions
 ### 2. Installation
 ```bash
 # Clone the repository
-git clone <your-repo-url>
-cd nano-link
+git clone git@github.com:pocper1/url_shortener.git
+cd url_shortener
 
 # Create and activate a virtual environment
 python3 -m venv venv
