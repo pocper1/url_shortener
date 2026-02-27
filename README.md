@@ -16,7 +16,7 @@ A modern, comprehensive URL Shortener application built with FastAPI and SQLite.
 ## 🏗️ Architecture
 
 ```mermaid
-graph TD
+flowchart TD
     User([User / Browser])
     
     subgraph sublayer [Frontend]
@@ -24,9 +24,9 @@ graph TD
     end
     
     subgraph sublayer2 [Backend API]
-        APIShorten[POST /api/shorten]
-        APIRedirect[GET /{short_code}]
-        APIStats[GET /api/stats/{short_code}]
+        APIShorten["POST /api/shorten"]
+        APIRedirect["GET /:short_code"]
+        APIStats["GET /api/stats/:short_code"]
     end
 
     subgraph sublayer3 [Data Layer]
