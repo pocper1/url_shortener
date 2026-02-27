@@ -20,7 +20,7 @@ graph TD
     User([User / Browser])
     
     sublayer[Frontend]
-        UI[UI Dashboard (index.html, stats.html)]
+        UI["UI Dashboard (index.html, stats.html)"]
     end
     
     sublayer2[Backend API (FastAPI)]
